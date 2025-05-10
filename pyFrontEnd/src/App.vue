@@ -6,7 +6,7 @@ import SliderBarComponent from './components/SliderBarComponent.vue';
 <template>
   <div class=" flex felx-row w-full">
     <SliderBarComponent class="sticky top-0 left-0"/>
-    <RouterView class=" bg-amber-400 flex-1"></RouterView>
+    <RouterView class="flex-1"></RouterView>
   </div>
 </template>
 

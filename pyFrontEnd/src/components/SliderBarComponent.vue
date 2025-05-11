@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { color, Motion, motion } from 'motion-v'
 import { useAnimationControls } from 'motion-v'
-import { DoubleLeft, DoubleRight, HomeTwo, PeoplesTwo, CollectionFiles, History, Right } from '@icon-park/vue-next'
+import { DoubleLeft, DoubleRight, HomeTwo, PeoplesTwo, CollectionFiles, History, Right, ChartPieOne } from '@icon-park/vue-next'
 import { onMounted, ref } from 'vue'
 // 定义开启与关闭动画
 const container = {
@@ -39,6 +39,7 @@ const userInfoItemContainer = {
     },
     open: {
         display: 'block',
+        height: 'auto'
     }
 }
 // 定义用户下拉框动画控制器
@@ -58,6 +59,24 @@ function handleChangeUserInfoAnimationState() {
         userInfoItemContainerController.start(userInfoItemContainer.close)
     }
     userInfoOpen.value = !userInfoOpen.value
+}
+// 定于数据分析控制器
+const dataInfoContianerController = useAnimationControls()
+const dataInfoItemContainerController = useAnimationControls()
+let dataInfoOpen = ref(false)
+function handleChangeDataInfoAnimationState() {
+    if (!dataInfoOpen.value) {
+        // 改变箭头状态
+        dataInfoContianerController.start(userInfoContainer.open)
+        // 展开下拉框
+        dataInfoItemContainerController.start(userInfoItemContainer.open)
+    } else {
+        // 改变箭头状态
+        dataInfoContianerController.start(userInfoContainer.close)
+        // 展开下拉框
+        dataInfoItemContainerController.start(userInfoItemContainer.close)
+    }
+    dataInfoOpen.value = !dataInfoOpen.value
 }
 </script>
 
@@ -83,21 +102,19 @@ function handleChangeUserInfoAnimationState() {
             </i>
         </div>
         <!-- 菜单列表 -->
-        <div class="px-1 text-md">
+        <div class="px-1 text-md font-semibold">
             <!-- 首页 -->
-            <h2 :class="{ 'justify-center': !open }"
-                class="flex my-5 h-5 hover:text-purple-400 cursor-pointer flex-row items-center">
+            <h2 :class="{ 'justify-center': !open }" class="menuItem">
                 <HomeTwo theme="outline" size="24" />
-                <span v-if="open" class="ml-4 font-bold">首页</span>
+                <span v-if="open" class="ml-4">首页</span>
             </h2>
             <!-- 个人中心 -->
             <div>
                 <motion.div @click="handleChangeUserInfoAnimationState"
-                    :class="{ 'justify-between': open, 'justify-center ': !open }"
-                    class="hover:text-purple-400 select-none cursor-pointer flex h-5 flex-row items-center">
+                    :class="{ 'justify-between': open, 'justify-center ': !open }" class="menuItem">
                     <h2 :class="{ 'justify-center': !open }" class="flex my-5  flex-row items-center">
                         <PeoplesTwo theme="outline" size="24" />
-                        <span v-if="open" class="ml-4 font-bold">个人中心</span>
+                        <span v-if="open" class="ml-3">个人中心</span>
                     </h2>
                     <Motion class="flex flex-row items-center" :initial="{
                         rotate: 0
@@ -106,31 +123,53 @@ function handleChangeUserInfoAnimationState() {
                     </Motion>
 
                 </motion.div>
-                <Motion class="pl-5 text-sm" :transition="{
-                    duration: 0.1,
+                <Motion class="pl-5 text-sm overflow-hidden font-medium" :transition="{
+                    duration: 0.15,
                 }" :initial="{ display: 'none' }" :variants="userInfoItemContainer"
                     :animate="userInfoItemContainerController">
                     <!-- 收藏夹 -->
-                    <h2 :class="{ 'justify-center': !open }"
-                        class="flex my-5 h-5 hover:text-purple-400 z-0 cursor-pointer flex-row items-center">
+                    <h2 :class="{ 'justify-center': !open }" class="menuSubItem mb-5">
                         <CollectionFiles theme="outline" size="20" />
-                        <span v-if="open" class="ml-4 font-bold">收藏夹</span>
+                        <span v-if="open" class="ml-4">收藏夹</span>
                     </h2>
                     <!-- 历史记录 -->
-                    <h2 :class="{ 'justify-center': !open }"
-                        class="flex my-5 h-5 hover:text-purple-400 cursor-pointer flex-row items-center">
+                    <h2 :class="{ 'justify-center': !open }" class="menuSubItem">
                         <History theme="outline" size="20" />
-                        <span v-if="open" class="ml-4 font-bold">历史记录</span>
+                        <span v-if="open" class="ml-4">历史记录</span>
                     </h2>
                 </Motion>
             </div>
-            <!-- 历史记录 -->
-            <h2 :class="{ 'justify-center': !open }"
-                class="flex my-5 h-5 hover:text-purple-400 z-10 bg-blue-50 cursor-pointer flex-row items-center">
-                <History theme="outline" size="20" />
-                <span v-if="open" class="ml-4 font-bold">历史记录</span>
-            </h2>
+            <!-- 个人中心 -->
+            <div>
+                <motion.div @click="handleChangeDataInfoAnimationState"
+                    :class="{ 'justify-between': open, 'justify-center ': !open }" class="menuItem">
+                    <h2 :class="{ 'justify-center': !open }" class="flex my-5 flex-row items-center">
+                        <ChartPieOne theme="outline" size="24" />
+                        <span v-if="open" class="ml-3">数据分析</span>
+                    </h2>
+                    <Motion class="flex flex-row items-center" :initial="{
+                        rotate: 0
+                    }" :variants="userInfoContainer" :animate="dataInfoContianerController">
+                        <Right v-if="open" size="20" theme="outline" />
+                    </Motion>
 
+                </motion.div>
+                <Motion class="pl-5 text-sm overflow-hidden font-medium" :transition="{
+                    duration: 0.15,
+                }" :initial="{ display: 'none' }" :variants="userInfoItemContainer"
+                    :animate="dataInfoItemContainerController">
+                    <!-- 收藏夹 -->
+                    <h2 :class="{ 'justify-center': !open }" class="menuSubItem mb-5">
+                        <CollectionFiles theme="outline" size="20" />
+                        <span v-if="open" class="ml-4">收藏夹</span>
+                    </h2>
+                    <!-- 历史记录 -->
+                    <h2 :class="{ 'justify-center': !open }" class="menuSubItem">
+                        <History theme="outline" size="20" />
+                        <span v-if="open" class="ml-4">历史记录</span>
+                    </h2>
+                </Motion>
+            </div>
         </div>
         <!-- 折叠标记 -->
         <div @click="handleChangeAnimate" class="cursor-pointer hover:text-purple-400 flex flex-row justify-center"
@@ -139,3 +178,14 @@ function handleChangeUserInfoAnimationState() {
         </div>
     </motion.div>
 </template>
+<style scoped>
+@import "tailwindcss";
+
+.menuItem {
+    @apply flex my-5 h-7 hover:text-purple-400 cursor-pointer flex-row items-center select-none;
+}
+
+.menuSubItem {
+    @apply flex h-5 hover:text-purple-400 cursor-pointer flex-row items-center select-none;
+}
+</style>

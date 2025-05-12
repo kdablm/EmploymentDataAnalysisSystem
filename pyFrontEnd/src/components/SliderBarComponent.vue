@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { color, Motion, motion } from 'motion-v'
+import { Motion, motion } from 'motion-v'
 import { useAnimationControls } from 'motion-v'
-import { DoubleLeft, DoubleRight, HomeTwo, PeoplesTwo, CollectionFiles, History, Right, ChartPieOne } from '@icon-park/vue-next'
+import { DoubleLeft, DoubleRight, HomeTwo, PeoplesTwo, CollectionFiles, History, Right, ChartPieOne, DataFile, TrendTwo, Me } from '@icon-park/vue-next'//图标
 import { onMounted, ref } from 'vue'
-// 定义开启与关闭动画
+import { useRoute, useRouter } from 'vue-router'
+// 定义侧边栏开启与关闭动画
 const container = {
     close: {
         width: '5rem'
@@ -11,17 +12,6 @@ const container = {
     open: {
         width: '14rem'
     }
-}
-
-// 定义动画控制器
-const animateController = useAnimationControls()
-// 定义点击事件
-let open = ref(true)//展开标记
-function handleChangeAnimate() {
-    if (!open.value)
-        animateController.start(container.open)
-    else animateController.start(container.close)
-    open.value = !open.value
 }
 // 个人中心下拉框 
 const userInfoContainer = {
@@ -42,11 +32,38 @@ const userInfoItemContainer = {
         height: 'auto'
     }
 }
-// 定义用户下拉框动画控制器
-const userInfoContainerController = useAnimationControls()
-const userInfoItemContainerController = useAnimationControls()
+/*定义动画控制器*/
+const animateController = useAnimationControls()
+const userInfoContainerController = useAnimationControls()//用户信息动画控制器
+const userInfoItemContainerController = useAnimationControls()//用户信息动画控制器
+const dataInfoContianerController = useAnimationControls()// 定于数据分析控制器
+const dataInfoItemContainerController = useAnimationControls()// 定于数据分析控制器
+/*定义动画控制器结束*/
+// 定义点击事件
+let open = ref(true)//展开标记
+function handleChangeAnimate() {
+    if (!open.value)
+        animateController.start(container.open)
+    else {
+        animateController.start(container.close)
+        // 关闭二级菜单
+        userInfoItemContainerController.start(userInfoItemContainer.close)
+        dataInfoItemContainerController.start(userInfoItemContainer.close)
+        //修改箭头状态
+        userInfoContainerController.start(userInfoContainer.close)
+        dataInfoContianerController.start(userInfoContainer.close)
+        //设置标志状态
+        dataInfoOpen.value = false
+        userInfoOpen.value = false
+    }
+    open.value = !open.value
+}
+// 定义用户下拉框动画
 let userInfoOpen = ref(false)//标志
 function handleChangeUserInfoAnimationState() {
+    if (!open.value) {
+        return;
+    }
     if (!userInfoOpen.value) {
         // 改变箭头状态
         userInfoContainerController.start(userInfoContainer.open)
@@ -60,9 +77,7 @@ function handleChangeUserInfoAnimationState() {
     }
     userInfoOpen.value = !userInfoOpen.value
 }
-// 定于数据分析控制器
-const dataInfoContianerController = useAnimationControls()
-const dataInfoItemContainerController = useAnimationControls()
+
 let dataInfoOpen = ref(false)
 function handleChangeDataInfoAnimationState() {
     if (!dataInfoOpen.value) {
@@ -77,6 +92,12 @@ function handleChangeDataInfoAnimationState() {
         dataInfoItemContainerController.start(userInfoItemContainer.close)
     }
     dataInfoOpen.value = !dataInfoOpen.value
+}
+//定义路由控制器
+const router = useRouter()
+const route = useRoute()
+function routerTo(path: string) {
+    router.push(path)
 }
 </script>
 
@@ -104,7 +125,7 @@ function handleChangeDataInfoAnimationState() {
         <!-- 菜单列表 -->
         <div class="px-1 text-md font-semibold">
             <!-- 首页 -->
-            <h2 :class="{ 'justify-center': !open }" class="menuItem">
+            <h2 :class="{ 'justify-center': !open }" class="menuItem" @click="routerTo('/')">
                 <HomeTwo theme="outline" size="24" />
                 <span v-if="open" class="ml-4">首页</span>
             </h2>
@@ -121,12 +142,16 @@ function handleChangeDataInfoAnimationState() {
                     }" :variants="userInfoContainer" :animate="userInfoContainerController">
                         <Right v-if="open" size="20" theme="outline" />
                     </Motion>
-
                 </motion.div>
                 <Motion class="pl-5 text-sm overflow-hidden font-medium" :transition="{
                     duration: 0.15,
                 }" :initial="{ display: 'none' }" :variants="userInfoItemContainer"
                     :animate="userInfoItemContainerController">
+                    <!-- 个人信息 -->
+                    <h2 :class="{ 'justify-center': !open }" @click="routerTo('/user/info')" class="menuSubItem mb-5">
+                        <Me theme="outline" size="20" />
+                        <span v-if="open" class="ml-4">个人信息</span>
+                    </h2>
                     <!-- 收藏夹 -->
                     <h2 :class="{ 'justify-center': !open }" class="menuSubItem mb-5">
                         <CollectionFiles theme="outline" size="20" />
@@ -139,7 +164,7 @@ function handleChangeDataInfoAnimationState() {
                     </h2>
                 </Motion>
             </div>
-            <!-- 个人中心 -->
+            <!-- 数据分析 -->
             <div>
                 <motion.div @click="handleChangeDataInfoAnimationState"
                     :class="{ 'justify-between': open, 'justify-center ': !open }" class="menuItem">
@@ -158,16 +183,17 @@ function handleChangeDataInfoAnimationState() {
                     duration: 0.15,
                 }" :initial="{ display: 'none' }" :variants="userInfoItemContainer"
                     :animate="dataInfoItemContainerController">
-                    <!-- 收藏夹 -->
+                    <!-- 数据概览 -->
                     <h2 :class="{ 'justify-center': !open }" class="menuSubItem mb-5">
-                        <CollectionFiles theme="outline" size="20" />
-                        <span v-if="open" class="ml-4">收藏夹</span>
+                        <DataFile theme="outline" size="20" />
+                        <span v-if="open" class="ml-4">数据概览</span>
                     </h2>
-                    <!-- 历史记录 -->
+                    <!-- 岗位分析 -->
                     <h2 :class="{ 'justify-center': !open }" class="menuSubItem">
-                        <History theme="outline" size="20" />
-                        <span v-if="open" class="ml-4">历史记录</span>
+                        <TrendTwo theme="outline" size="20" />
+                        <span v-if="open" class="ml-4">岗位分析</span>
                     </h2>
+                    <!--  -->
                 </Motion>
             </div>
         </div>

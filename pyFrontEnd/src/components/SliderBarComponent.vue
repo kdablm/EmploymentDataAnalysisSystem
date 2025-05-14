@@ -80,6 +80,9 @@ function handleChangeUserInfoAnimationState() {
 
 let dataInfoOpen = ref(false)
 function handleChangeDataInfoAnimationState() {
+    if (!open.value) {
+        return;
+    }
     if (!dataInfoOpen.value) {
         // 改变箭头状态
         dataInfoContianerController.start(userInfoContainer.open)

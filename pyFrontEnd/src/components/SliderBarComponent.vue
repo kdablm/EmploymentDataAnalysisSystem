@@ -52,9 +52,11 @@ function handleChangeAnimate() {
         //修改箭头状态
         userInfoContainerController.start(userInfoContainer.close)
         dataInfoContianerController.start(userInfoContainer.close)
-        //设置标志状态
+        //清除标志状态
         dataInfoOpen.value = false
         userInfoOpen.value = false
+        userInfoMiniMenuOpen.value = false
+        dataMiniMenuOpen.value = false
     }
     open.value = !open.value
 }
@@ -62,6 +64,9 @@ function handleChangeAnimate() {
 let userInfoOpen = ref(false)//标志
 function handleChangeUserInfoAnimationState() {
     if (!open.value) {
+        // 小屏幕折叠
+        dataMiniMenuOpen.value = false
+        userInfoMiniMenuOpen.value = !userInfoMiniMenuOpen.value
         return;
     }
     if (!userInfoOpen.value) {
@@ -81,6 +86,9 @@ function handleChangeUserInfoAnimationState() {
 let dataInfoOpen = ref(false)
 function handleChangeDataInfoAnimationState() {
     if (!open.value) {
+        // 小屏幕折叠
+        userInfoMiniMenuOpen.value = false
+        dataMiniMenuOpen.value = !dataMiniMenuOpen.value
         return;
     }
     if (!dataInfoOpen.value) {
@@ -96,10 +104,15 @@ function handleChangeDataInfoAnimationState() {
     }
     dataInfoOpen.value = !dataInfoOpen.value
 }
+// 折叠二级菜单
+let dataMiniMenuOpen = ref(false)
+let userInfoMiniMenuOpen = ref(false)
 //定义路由控制器
 const router = useRouter()
 const route = useRoute()
 function routerTo(path: string) {
+    userInfoMiniMenuOpen.value = false
+    dataMiniMenuOpen.value = false
     router.push(path)
 }
 </script>
@@ -133,7 +146,7 @@ function routerTo(path: string) {
                 <span v-if="open" class="ml-4">首页</span>
             </h2>
             <!-- 个人中心 -->
-            <div>
+            <div class="relative">
                 <motion.div @click="handleChangeUserInfoAnimationState"
                     :class="{ 'justify-between': open, 'justify-center ': !open }" class="menuItem">
                     <h2 :class="{ 'justify-center': !open }" class="flex my-5  flex-row items-center">
@@ -166,9 +179,27 @@ function routerTo(path: string) {
                         <span v-if="open" class="ml-4">历史记录</span>
                     </h2>
                 </Motion>
+                <!-- 小屏幕折叠列表 -->
+                <div v-if="!open && userInfoMiniMenuOpen" class="miniMenu text-sm font-medium">
+                    <!-- 个人信息 -->
+                    <h2 @click="routerTo('/user/info')" class="menuSubItem">
+                        <Me theme="outline" size="20" />
+                        <span class="ml-4">个人信息</span>
+                    </h2>
+                    <!-- 收藏夹 -->
+                    <h2 class="menuSubItem mt-3">
+                        <CollectionFiles theme="outline" size="20" />
+                        <span class="ml-4">收藏夹</span>
+                    </h2>
+                    <!-- 历史记录 -->
+                    <h2 class="menuSubItem mt-3">
+                        <History theme="outline" size="20" />
+                        <span class="ml-4">历史记录</span>
+                    </h2>
+                </div>
             </div>
             <!-- 数据分析 -->
-            <div>
+            <div class="relative">
                 <motion.div @click="handleChangeDataInfoAnimationState"
                     :class="{ 'justify-between': open, 'justify-center ': !open }" class="menuItem">
                     <h2 :class="{ 'justify-center': !open }" class="flex my-5 flex-row items-center">
@@ -194,10 +225,22 @@ function routerTo(path: string) {
                     <!-- 岗位分析 -->
                     <h2 :class="{ 'justify-center': !open }" class="menuSubItem">
                         <TrendTwo theme="outline" size="20" />
-                        <span v-if="open" class="ml-4">岗位分析</span>
+                        <span class="ml-4">岗位分析</span>
                     </h2>
-                    <!--  -->
                 </Motion>
+                <!-- 小屏幕折叠列表 -->
+                <div v-if="!open && dataMiniMenuOpen" class="miniMenu text-sm font-medium">
+                    <!-- 数据概览 -->
+                    <h2 class="menuSubItem w-full">
+                        <DataFile theme="outline" size="20" />
+                        <span class="ml-4">数据概览</span>
+                    </h2>
+                    <!-- 数据概览 -->
+                    <h2 class="menuSubItem mt-3 w-full">
+                        <TrendTwo theme="outline" size="20" />
+                        <span class="ml-4">岗位分析</span>
+                    </h2>
+                </div>
             </div>
         </div>
         <!-- 折叠标记 -->
@@ -216,5 +259,9 @@ function routerTo(path: string) {
 
 .menuSubItem {
     @apply flex h-5 hover:text-purple-400 cursor-pointer flex-row items-center select-none;
+}
+
+.miniMenu {
+    @apply select-none absolute top-0 left-[3.5rem] w-35 bg-blue-100 p-2 justify-center;
 }
 </style>
